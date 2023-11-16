@@ -1,7 +1,13 @@
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(windowWidth, windowHeight, WEBGL);
+  frameRate(60);
+  imageMode(CENTER);
 }
 
 function draw() {
-  background(220);
+  background(128);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
