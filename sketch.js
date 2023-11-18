@@ -10,8 +10,9 @@ function setup() {
 
 function draw() {
   background(128);
-  orbitControl();
   utilityPole.drawPole();
+
+  orbitControl();
 }
 
 function windowResized() {
