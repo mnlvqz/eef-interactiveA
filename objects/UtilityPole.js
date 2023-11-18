@@ -4,7 +4,7 @@ class UtilityPole {
     this.innerRadius = innerRadius;
     this.poleRadius = 16;
     this.poleHeight = 1024;
-    this.crossArms = this.generateCrossArms(2);
+    this.crossArms = this.generateCrossArms(6);
   }
 
   updatePole() {}
@@ -17,10 +17,9 @@ class UtilityPole {
     cylinder(this.poleRadius, this.poleHeight);
     pop();
 
-    // Cross-arms
-
     for (let i = 0; i < this.crossArms.length; i++) {
       push();
+      // Cross-arms
       rotateY(this.crossArms[i].angle);
       translate(
         this.crossArms[i].position.x,
@@ -32,6 +31,27 @@ class UtilityPole {
         this.crossArms[i].dimensions.y,
         this.crossArms[i].dimensions.z
       );
+
+      // Insulators
+      translate(
+        this.crossArms[i].dimensions.x * 0.5 - this.crossArms[i].insulator,
+        -this.crossArms[i].dimensions.y,
+        0
+      );
+      cylinder(this.crossArms[i].insulator, 16);
+      translate(
+        this.crossArms[i].dimensions.x * -0.5 + this.crossArms[i].insulator,
+        0,
+        0
+      );
+      cylinder(this.crossArms[i].insulator, 16);
+      translate(
+        this.crossArms[i].dimensions.x * -0.5 + this.crossArms[i].insulator,
+        0,
+        0
+      );
+      cylinder(this.crossArms[i].insulator, 16);
+
       pop();
     }
 
@@ -45,7 +65,7 @@ class UtilityPole {
       let crossArmDimension = createVector(256, 16, 8);
       let crossArmXOffset = crossArmDimension.x * random(0.1, 0.2);
       let crossArmHeight =
-        this.poleHeight * -0.5 * map(i, 0, crossArmsNumber - 1, 0.65, 0.8);
+        this.poleHeight * -0.5 * map(i, 0, crossArmsNumber - 1, 0.6, 0.9);
       crossArms[i] = {
         dimensions: crossArmDimension,
         position: createVector(
@@ -54,6 +74,8 @@ class UtilityPole {
           this.poleRadius * 0.5 + crossArmDimension.z * 1.5
         ),
         angle: random(TWO_PI),
+        insulatorAPosition: 0,
+        insulator: 8,
       };
     }
     return crossArms;
