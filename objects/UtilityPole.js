@@ -1,10 +1,16 @@
 class UtilityPole {
   constructor(radius, innerRadius) {
+    // Pole properties
     this.radius = radius;
     this.innerRadius = innerRadius;
     this.poleRadius = 16;
     this.poleHeight = 1024;
-    this.crossArms = this.generateCrossArms(20);
+
+    // Crossarms' properties
+    this.crossarms = this.generateCrossarms(4, 0.7, 0.9);
+
+    // Ladder properties
+    this.ladder = this.generateLadder(8, 0.4, 0.65);
   }
 
   updatePole() {}
@@ -18,29 +24,29 @@ class UtilityPole {
     pop();
 
     // Drawing crossarms
-    for (let i = 0; i < this.crossArms.length; i++) {
+    for (let i = 0; i < this.crossarms.length; i++) {
       // Drawing each crossarm
       push();
-      rotateY(this.crossArms[i].angle);
+      rotateY(this.crossarms[i].angle);
       translate(
-        this.crossArms[i].position.x,
-        this.crossArms[i].position.y,
-        this.crossArms[i].position.z
+        this.crossarms[i].position.x,
+        this.crossarms[i].position.y,
+        this.crossarms[i].position.z
       );
       //rotateZ(0.1);
       box(
-        this.crossArms[i].dimensions.x,
-        this.crossArms[i].dimensions.y,
-        this.crossArms[i].dimensions.z
+        this.crossarms[i].dimensions.x,
+        this.crossarms[i].dimensions.y,
+        this.crossarms[i].dimensions.z
       );
       pop();
 
       // Drawing insulators
-      for (let j = 0; j < this.crossArms[i].insulators.length; j++) {
+      for (let j = 0; j < this.crossarms[i].insulators.length; j++) {
         // Drawing each insulator
-        let insulator = this.crossArms[i].insulators[j];
+        let insulator = this.crossarms[i].insulators[j];
         push();
-        rotateY(this.crossArms[i].angle);
+        rotateY(this.crossarms[i].angle);
         translate(
           insulator.position.x,
           insulator.position.y,
@@ -51,27 +57,48 @@ class UtilityPole {
       }
     }
 
+    // Drawing ladder
+    for (let i = 0; i < this.ladder.length; i++) {
+      push();
+      rotateY(this.ladder[i].stepAngle.y);
+      translate(
+        this.ladder[i].stepPosition.x,
+        this.ladder[i].stepPosition.y,
+        this.ladder[i].stepPosition.z
+      );
+
+      box(
+        this.ladder[i].stepDimensions.x,
+        this.ladder[i].stepDimensions.y,
+        this.ladder[i].stepDimensions.z
+      );
+
+      pop();
+    }
+
     pop();
   }
 
   // Crossarms' generator function
-  generateCrossArms(crossArmsNumber) {
+  generateCrossarms(crossarmsNumber, lowerRange, higherRange) {
     // Crossarms' array definition
-    let crossArms = [];
+    let crossarms = [];
 
-    for (let i = 0; i < crossArmsNumber; i++) {
+    for (let i = 0; i < crossarmsNumber; i++) {
       // Crossarm arbitrary dimensions
       let crossArmDimensions = createVector(256, 16, 8);
 
       //let crossArmXOffset = crossArmDimensions.x * random(0.1, 0.2);
-      // Crossarm x-offset
+      // Crossarm x-axis offset
       let crossArmXOffset = 0;
 
       // Crossarm unitary distribution on y-axis
       let crossArmHeight =
-        this.poleHeight * -0.5 * map(i, 0, crossArmsNumber - 1, 0.6, 0.9);
+        -this.poleHeight *
+          map(i, 0, crossarmsNumber - 1, lowerRange, higherRange) +
+        this.poleHeight * 0.5;
 
-      // Crossarm vector position with z-offset (pole's diameter)
+      // Crossarm vector position with z-axis offset (pole's diameter)
       let crossArmPosition = createVector(
         crossArmXOffset,
         crossArmHeight,
@@ -79,7 +106,7 @@ class UtilityPole {
       );
 
       // Object literal for crossarm defintion with insulators
-      crossArms[i] = {
+      crossarms[i] = {
         dimensions: crossArmDimensions,
         position: crossArmPosition,
         angle: random(TWO_PI),
@@ -90,7 +117,7 @@ class UtilityPole {
         ),
       };
     }
-    return crossArms;
+    return crossarms;
   }
 
   // Insulators' generator function
@@ -124,6 +151,44 @@ class UtilityPole {
       };
     }
     return insulators;
+  }
+
+  // Ladder's generator function
+  generateLadder(stepsNumber, lowerRange, higherRange) {
+    // Steps' array definition
+    let steps = [];
+    // Steps arbitrary dimensions
+    let stepDimensions = createVector(32, 4, 4);
+
+    // Steps vector position array definition
+    for (let i = 0; i < stepsNumber; i++) {
+      // Step x-axis offset
+      let stepXOffset = stepDimensions.x;
+
+      // Steps unitary distribution on y-axis
+      let stepHeight =
+        -this.poleHeight * map(i, 0, stepsNumber - 1, lowerRange, higherRange) +
+        this.poleHeight * 0.5;
+
+      // Step vector position with x-axis offset (pole's diameter)
+      let stepPosition = createVector(
+        this.poleRadius + stepXOffset * 0.5,
+        stepHeight,
+        0
+      );
+
+      // Y-axis rotation for staggered steps
+      let stepAngle = createVector(0, PI * (i % 2), 0);
+
+      // Object literal for insulator defintion
+      steps[i] = {
+        stepDimensions: stepDimensions,
+        stepPosition: stepPosition,
+        stepAngle: stepAngle,
+      };
+    }
+
+    return steps;
   }
 
   generateRandomVectorsFixedRadius(radius, vectorsNumber) {
